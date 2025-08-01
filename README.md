@@ -14,7 +14,7 @@ Bitcoin Income Suite V2 is a suite of tools to help people produce income from i
 | Time Reclamation Engine (Hub) | All tools (imports sims/premiums/forecasts, Bitcoin/inflation funcs) | Suite-wide (DGI scores, time metrics, societal aggregates) |
 
 ## Setup Instructions
-1. Clone the repo: `git clone https://github.com/yourusername/bitcoin-income-suite-v2.git`  
+1. Clone the repo: `git clone https://github.com/johnquinby79/bitcoin-income-suite-v2.git`  
 2. Install dependencies: `pip install -r requirements.txt`  
 3. Run a tool: `streamlit run hub/tre.py` (for TRE)  
 4. For APIs: Add keys to .env (e.g., ALPHA_VANTAGE_API_KEY=yourkey) and load with os.environ.  
