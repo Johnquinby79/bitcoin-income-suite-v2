@@ -1,0 +1,6 @@
+streamlit
+pandas
+gTTS
+requests
+scikit-learn
+tweepy
