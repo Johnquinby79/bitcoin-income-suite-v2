@@ -1,5 +1,4 @@
 # common.py - Shared reusable code for Bitcoin Income Suite V2
-
 import os
 import json
 import csv
@@ -42,7 +41,9 @@ SP500_CAGR = 0.138  # ~13.8% (S&P 500 historical CAGR)
 SAVINGS_RATE_AVG = 0.003  # ~0.3% (US savings rate, FDIC/Forbes)
 
 def project_asset_growth(start_value, years, asset_cagr):
-    """Projects growth for comparison assets at fixed CAGR."""
+    """Projects growth for comparison assets at fixed CAGR or Bitcoin projection."""
+    if asset_cagr == 'bitcoin':
+        return project_bitcoin_price(years, start_value)  # Delegate to Bitcoin-specific projection
     return start_value * ((1 + asset_cagr) ** years)
 
 # DGI Calculation
@@ -104,16 +105,37 @@ def export_data(data, format='json', filename='export.json'):
             writer.writerow(data.values())
 
 # Real-Time Data Handling
-def fetch_stock_data(ticker, api_key):
-    """Fetch live stock prices, options, Greeks, indicators from Alpha Vantage."""
-    url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={ticker}&interval=5min&apikey={api_key}"
+import streamlit as st  # Ensure this is at the top
+
+def fetch_stock_data(ticker, api_key=os.getenv('ALPHA_VANTAGE_API_KEY')):
+    """Fetch live RSI for stock/MSTR from Alpha Vantage."""
+    if not api_key:
+        return {'rsi': 50, 'premium_yield': 0.02}
+    url = f"https://www.alphavantage.co/query?function=RSI&symbol={ticker}&interval=5min&time_period=14&series_type=close&apikey={api_key}"
     response = requests.get(url)
     if response.status_code == 200:
-        return response.json()
+        data = response.json()
+        rsi_data = data.get('Technical Analysis: RSI', {})
+        if rsi_data:
+            latest_rsi = None
+            for date, values in rsi_data.items():
+                try:
+                    rsi_value = float(values.get('RSI', '50'))
+                    if latest_rsi is None or date > latest_rsi_date:
+                        latest_rsi = rsi_value
+                        latest_rsi_date = date
+                except (ValueError, TypeError):
+                    continue
+            latest_rsi = latest_rsi or 50
+        else:
+            latest_rsi = 50
+        # Mock premium yield based on RSI trend (e.g., RSI / 1000 for 5-6% range)
+        premium_yield = latest_rsi / 1000  # No cap for variability
+        return {'rsi': latest_rsi, 'premium_yield': premium_yield}
     else:
-        return get_fallback_data('stock')  # Fallback
+        return {'rsi': 50, 'premium_yield': 0.02}  # Fallback
 
-def fetch_bitcoin_price(api_key):
+def fetch_bitcoin_price(api_key=os.getenv('COINGECKO_API_KEY')):
     """Fetch live Bitcoin price from CoinGecko."""
     url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
     response = requests.get(url)
