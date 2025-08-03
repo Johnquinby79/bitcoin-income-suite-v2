@@ -130,7 +130,7 @@ def fetch_stock_data(ticker, api_key=os.getenv('ALPHA_VANTAGE_API_KEY')):
         else:
             latest_rsi = 50
         # Mock premium yield based on RSI trend (e.g., RSI / 1000 for 5-6% range)
-        premium_yield = latest_rsi / 1000  # No cap for variability
+        premium_yield = min(max(0.01, latest_rsi / 1000), 0.05)  # 1-5% range
         return {'rsi': latest_rsi, 'premium_yield': premium_yield}
     else:
         return {'rsi': 50, 'premium_yield': 0.02}  # Fallback
