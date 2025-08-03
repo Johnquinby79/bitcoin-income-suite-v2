@@ -197,14 +197,13 @@ with col_int3:
         # Real-time fetch (with fallback)
         try:
             options_data = fetch_stock_data(ticker, os.getenv('ALPHA_VANTAGE_API_KEY')) # Use user input ticker
-            premium = options_data.get('premium_yield', 0.02) * 100  # Convert to percentage
-            rsi = options_data.get('rsi', 50)
+            premium = options_data['premium_yield'] * 100  # Use fetched premium_yield directly
+            rsi = options_data['rsi']  # Use fetched rsi directly
         except Exception as e:
             st.error(f"API Error: {e}. Using fallback values.")
             premium = 2.0  # Hardcoded 2%
             rsi = 50
         st.write(f"Imported Premium: {premium:.1f}% (RSI: {rsi})")
-        st.write(f"Debug: Actual premium_yield from fetch: {options_data.get('premium_yield')}, RSI: {options_data.get('rsi')}")
         # Assume sweep premium to Bitcoin
         premium_sweep = 1000 * (premium / 100) * (sweep_percentage / 100)
         st.write(f"Swept to Bitcoin: {premium_sweep:.2f} USD")
