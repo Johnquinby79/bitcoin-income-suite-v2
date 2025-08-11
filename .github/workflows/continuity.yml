@@ -1,0 +1,16 @@
+name: Append Continuity Log
+on: [push]  # Triggers on code pushes
+jobs:
+  summarize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate and Append Summary
+        run: |
+          SUMMARY="## $(date +%Y-%m-%d) Auto-Summary\n- Changes: $(git log -1 --pretty=%B)\n- State: Progress on Bitcoin Income Suite efficiencies, e.g., sweeps from ETFs/dividends to Bitcoin for wealth creation.\n- Unresolved: [e.g., Refine DGI hours alignment in TRE].\n- Next: [e.g., Test Opportunity Cost integration for time reclamation visuals].\n"
+          echo "$SUMMARY" >> docs/Continuity_Log.md
+      - name: Commit Updated Log
+        uses: EndBug/add-and-commit@v9
+        with:
+          path: 'docs/Continuity_Log.md'
+          message: 'Auto-append continuity summary for Bitcoin Suite progress'
